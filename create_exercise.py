@@ -1,10 +1,10 @@
 '''
 The script replaces all lines
 marked at the line end with: # REMOVE
-and replaces it with: #your solution
+and replaces it with: ###!!! INSERT SOLUTION
 
 Run:
-python ./create_exercise.py --ifiles solution_preprocessing.ipynb solution_linear_regression ...
+python ./create_exercise.py --ifiles solution_*.ipynb
 
 TODO: .ipynb are json files, therefore reimplement using json directly!
 '''

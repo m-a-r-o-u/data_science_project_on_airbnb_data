@@ -20,7 +20,7 @@ python create_exercise.py --ifiles solutions*.ipynb
 
 This removes lines that are tagged at the end with: `# REMOVE`
 
-and replaces them with the placeholder `#your solution`.
+and replaces them with the placeholder `###!!! INSERT SOLUTION`.
 
 For an examples, have a look in the first notebook.
 

@@ -62,3 +62,5 @@ if __name__ == '__main__':
         with ofile.open('w') as f:
             for line in new_lines:
                 f.write(line)
+
+        print(f'*** created {ofile}')

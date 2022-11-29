@@ -24,7 +24,7 @@ def create_exercise(lines):
         if match := re.search(pattern, line):
 
             # replace it with: "#your solution"
-            fill = re.sub(pattern, r"\1\2##your solution\5", line)
+            fill = re.sub(pattern, r"\1\2###!!! INSERT SOLUTION\5", line)
             out.append(fill)
         else:
             out.append(line)

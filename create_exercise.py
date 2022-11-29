@@ -20,11 +20,11 @@ def create_exercise(lines):
 
     for line in lines:
         # match the pattern: "# REMOVE"
-        pattern = r'(\s*")(.*)(#\s*REMOVE)(.*",?\s*)'
+        pattern = r'^(\s*")(\s*)(.*)(#\s*REMOVE)(.*",?\s*)'
         if match := re.search(pattern, line):
 
             # replace it with: "#your solution"
-            fill = re.sub(pattern, r"\1#your solution\4", line)
+            fill = re.sub(pattern, r"\1\2##your solution\5", line)
             out.append(fill)
         else:
             out.append(line)

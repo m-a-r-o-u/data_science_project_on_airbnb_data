@@ -80,7 +80,6 @@ def confusion_matrix_wrapper(ytest, ypred):
     ax.set_ylabel('Predicted');
 
 
-
 # metrics regression
 def rmse_score(*args, **kwargs):
     return mean_squared_error(*args, **kwargs, squared=False)

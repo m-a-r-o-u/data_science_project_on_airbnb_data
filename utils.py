@@ -2,7 +2,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-# metrics
+# models
+from sklearn.linear_model import LinearRegression
+
+# metrics classification
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score
@@ -10,6 +13,10 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix
+
+# metrics regression
+from sklearn.metrics import r2_score
+from sklearn.metrics import mean_squared_error
 
 
 def get_dichotomous(data):
@@ -60,7 +67,6 @@ def roc_wrapper(ytest, ypred, yprob):
     return ometrics
 
 
-
 def confusion_matrix_wrapper(ytest, ypred):
     '''Convenience Function'''
     tn, fp, fn, tp = confusion_matrix(ytest, ypred, normalize='all').ravel()
@@ -72,3 +78,45 @@ def confusion_matrix_wrapper(ytest, ypred):
     ax.xaxis.set_label_position('top');
     ax.set_xlabel('Actual');
     ax.set_ylabel('Predicted');
+
+
+
+# metrics regression
+def rmse_score(*args, **kwargs):
+    return mean_squared_error(*args, **kwargs, squared=False)
+
+rmetrics = {}
+rmetrics['r2'] = r2_score
+rmetrics['mse'] = mean_squared_error
+rmetrics['rmse'] = rmse_score
+
+
+def linear_regression_wrapper(xtrain, xtest, ytrain, ytest, data, show=True):
+    '''
+    Convenience function wrapping
+    the application of linear regression
+    calculation of metrics and
+    plotting the results
+    '''
+
+    # fit the linear regression model
+    lr = LinearRegression()
+    lr.fit(xtrain, ytrain)
+
+    # model predictions
+    ypred = lr.predict(xtest)
+
+    # print and plot results
+    if show:
+        print('*** model paramters:')
+        print('coeff.: ', ', '.join([f'{x:.3f}' for x in lr.coef_]))
+        print(f'inter.: {lr.intercept_:.3f}')
+        print()
+        print('*** scores:')
+        for k, v in rmetrics.items():
+            score = v(ytest, ypred)
+            print(f'{k:22} {score:.3f}')
+
+        plot = sns.jointplot(data=data, x='square_meter', y='price', marker='.', marginal_kws=dict(bins=25));
+        plot.ax_joint.plot(xtest, ypred, '-', color='violet' );
+    return ypred

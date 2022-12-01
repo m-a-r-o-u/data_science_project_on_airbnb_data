@@ -1,9 +1,15 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
 # models
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import AdaBoostRegressor
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import AdaBoostClassifier
 
 # metrics classification
 from sklearn.metrics import accuracy_score
@@ -119,3 +125,101 @@ def linear_regression_wrapper(xtrain, xtest, ytrain, ytest, data, show=True):
         plot = sns.jointplot(data=data, x='square_meter', y='price', marker='.', marginal_kws=dict(bins=25));
         plot.ax_joint.plot(xtest, ypred, '-', color='violet' );
     return ypred
+
+
+def adaboost_wrapper(params, xtrain, xtest, ytrain, ytest):
+    max_depth = params['max_depth']
+    min_samples_leaf = params['min_samples_leaf']
+    learning_rate = params['learning_rate']
+    n_estimators = params['n_estimators']
+
+    if params['problem'] == 'regression':
+        base_estimator = DecisionTreeRegressor(max_depth=max_depth, min_samples_leaf=min_samples_leaf)
+        model = AdaBoostRegressor(base_estimator, learning_rate=learning_rate, n_estimators=n_estimators, random_state=0)
+    else:
+        base_estimator = DecisionTreeClassifier(max_depth=max_depth, min_samples_leaf=min_samples_leaf)
+        model = AdaBoostClassifier(base_estimator, learning_rate=learning_rate, n_estimators=n_estimators, random_state=0)
+
+    model.fit(xtrain, ytrain)
+    ypred = model.predict(xtest)
+    
+    if params['problem'] == 'regression':
+        m1 = r2_score(ytest, ypred)
+        m2 = mean_squared_error(ytest, ypred)
+    else:
+        m1 = f1_score(ytest, ypred)
+        m2 = accuracy_score(ytest, ypred)        
+    return model, m1, m2
+
+
+# Plot lift
+def calc_cumulative_gains(df: pd.DataFrame, actual_col: str, predicted_col:str, probability_col:str):
+
+    df.sort_values(by=probability_col, ascending=False, inplace=True)
+
+    subset = df[df[predicted_col] == True]
+
+    rows = []
+    for group in np.array_split(subset, 10):
+        score = accuracy_score(group[actual_col].tolist(),
+                                                   group[predicted_col].tolist(),
+                                                   normalize=False)
+
+        rows.append({'NumCases': len(group), 'NumCorrectPredictions': score})
+
+    lift = pd.DataFrame(rows)
+
+    #Cumulative Gains Calculation
+    lift['RunningCorrect'] = lift['NumCorrectPredictions'].cumsum()
+    lift['PercentCorrect'] = lift.apply(
+        lambda x: (100 / lift['NumCorrectPredictions'].sum()) * x['RunningCorrect'], axis=1)
+
+    lift['CumulativeCorrectBestCase'] = lift['NumCases'].cumsum()
+
+    lift['PercentCorrectBestCase'] = lift['CumulativeCorrectBestCase'].apply(
+        lambda x: 100 if (100 / lift['NumCorrectPredictions'].sum()) * x > 100 else (100 / lift[
+            'NumCorrectPredictions'].sum()) * x)
+
+    lift['AvgCase'] = lift['NumCorrectPredictions'].sum() / len(lift)
+
+    lift['CumulativeAvgCase'] = lift['AvgCase'].cumsum()
+
+    lift['PercentAvgCase'] = lift['CumulativeAvgCase'].apply(
+        lambda x: (100 / lift['NumCorrectPredictions'].sum()) * x)
+
+    #Lift Chart
+    lift['NormalisedPercentAvg'] = 1
+    lift['NormalisedPercentWithModel'] = lift['PercentCorrect'] / lift['PercentAvgCase']
+
+    return lift
+
+
+def plot_cumulative_gains(lift: pd.DataFrame):
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+
+    xdata = np.array(range(1, len(lift['PercentCorrect']) + 1)) * 10
+
+    handles = []
+    handles.append(ax.plot(xdata, lift['PercentCorrect'], 'r-', label='Percent Correct Predictions'))
+    handles.append(ax.plot(xdata, lift['PercentCorrectBestCase'], 'g-', label='Best Case'))
+    handles.append(ax.plot(xdata, lift['PercentAvgCase'], 'b-', label='Average Case'))
+
+    ax.set_xlabel('Total Population (%)')
+    ax.set_ylabel('Number of Respondents (%)')
+
+    #ax.set_xlim([0, 9])
+    ax.set_ylim([0, 100])
+
+    fig.legend(handles, labels=[h[0].get_label() for h in handles])
+    fig.show()
+
+
+def plot_lift_chart(lift: pd.DataFrame):
+    xdata = np.array(range(1, len(lift['PercentCorrect']) + 1)) * 10
+
+    plt.figure()
+    plt.plot(xdata, lift['NormalisedPercentAvg'], 'r-', label='Normalised \'response rate\' no model')
+    plt.plot(xdata, lift['NormalisedPercentWithModel'], 'g-', label='Normalised \'response rate\' using model')
+    plt.legend()
+    plt.show()

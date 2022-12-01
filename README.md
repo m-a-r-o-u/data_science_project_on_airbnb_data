@@ -79,7 +79,7 @@ Die angegebenen Inhalte sind ausschließlich für die Durchführung eines dreit�
         - Einführung (Regression vs. Klassifizierung, Vergleich zu anderen Algorithmen)
         - Grundlagen (Split-Search, Overfitting / Validierung (Pruning))
         - Ensemble-Modelle (Bootstrapping, Boosting, Modelle (Random Forest, Gradient Boosting)
-        
+
     - Model Evaluation und -auswahl
         - Konzept / Rahmenbedingungen / Anwendungsszenarien
         - Variablenselektion
@@ -92,5 +92,5 @@ Notebooks: [Dr. Mares Barekzai](mailto:mbarekzai@positivethinking.tech)
 Ansprechpartner: [Nicola Zäh](mailto:nzaeh@positivethinking.tech)
 
 Beteiligte Teams:
-    - 0959 Team Service-& Kontaktanalytik
-    - 0918 Team Projekt TKalpha
+- 0959 Team Service & Kontaktanalytik
+- 0918 Team Projekt TKalpha

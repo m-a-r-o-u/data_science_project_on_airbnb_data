@@ -14,8 +14,6 @@ Use pip to install the requirements:
 pip install -r requirements.txt
 ```
 
-The plotting library **cartopy** has external dependencies see [here](https://scitools.org.uk/cartopy/docs/latest/installing.html)
-
 # Usage
 
 Solution scripts, can be run without any further modifications.
